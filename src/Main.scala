@@ -207,7 +207,7 @@ object Main extends App {
         var reflectionColor = getRayColor(scene, intersectionPoint, reflectionRayDirection, maxDepth - 1)
 
         if (!reflectionColor.isDefined){
-          reflectionColor = Some(FloatColor(0, 0, 0))
+          reflectionColor = Some(WORLD_COLOR)
         }
 
         val rayColor = (solid.material.diffuse * lighting * (1.0f - solid.material.mirror)) + (reflectionColor.get * solid.material.mirror)
@@ -216,7 +216,7 @@ object Main extends App {
 
       }
       else {
-        None
+        Some(WORLD_COLOR)
       }
     }
   }
@@ -225,25 +225,28 @@ object Main extends App {
   val WIDTH = 1280
   val HEIGHT = 720
   val CAMERA_POSITION = Vector3D(0, 0, 0)
-
-  val rgbBitmap = new RgbBitmap(WIDTH, HEIGHT)
-  rgbBitmap.fill(new Color(10, 10, 10))
+  val WORLD_COLOR = FloatColor(0.1f, 0.1f, 0.1f)
+  val SUPER_SAMPLING = 2;
 
   val scene = Scene(
     solids = List(
-      Floor(-2.0f, Material(FloatColor(0.4f, 0.3f, 0.25f), 0.0f, 0.0f)),
+      Floor(-2.0f, Material(FloatColor(0.9f, 0.9f, 0.9f), 0.0f, 0.0f)),
       Sphere(Vector3D(-0.35f, 0.20f, 4.0f), 1.0f, Material(FloatColor(1.0f, 0.0f, 0.0f), mirror = 0.4f)),
-      Sphere(Vector3D(-0.35f, 0.20f, -8.0f), 1.0f, Material(FloatColor(0.0f, 1.0f, 0.0f))),
       Sphere(Vector3D(3.5f, 1.5f, 5.5f), 1.0f, Material(FloatColor(0.0f, 1.0f, 0.0f))),
       Sphere(Vector3D(-4.5f, -1.0f, 8.0f), 1.0f, Material(FloatColor(1.0f, 0.1f, 1.0f))),
       Sphere(Vector3D(1.0f, 2.0f, 9.0f), 1.0f, Material(FloatColor(0.5f, 0.1f, 1.0f))),
       Sphere(Vector3D(2.0f, -1.0f, 7.0f), 1.0f, Material(FloatColor(0.0f, 1.0f, 1.0f))),
+      Sphere(Vector3D(4.0f, -1.0f, 6.0f), 1.0f, Material(FloatColor(0.95f, 0.95f, 0.95f), mirror = 0.9f)),
       Sphere(Vector3D(-5.0f, 2.0f, 12.0f), 1.0f, Material(FloatColor(1.0f, 1.0f, 1.0f))),
       Sphere(Vector3D(5.0f, 1.0f, 12.0f), 1.0f, Material(FloatColor(1.0f, 0.65f, 0.0f))),
+
+      Sphere(Vector3D(-0.35f, 0.20f, -2.0f), 1.0f, Material(FloatColor(1.0f, 1.0f, 0.0f))),
+      Sphere(Vector3D(2.00f, 1.00f, -1.0f), 1.0f, Material(FloatColor(0.0f, 1.0f, 0.0f))),
+      Sphere(Vector3D(-4.35f, 2.20f, -0.0f), 1.0f, Material(FloatColor(0.5f, 1.0f, 0.5f))),
     ),
     lights = List(
       AmbientLight(FloatColor(0.1f, 0.1f, 0.1f)),
-      PointLight(Vector3D(-3.5f, 2.5f, 2.0f), FloatColor(20.0f, 20.0f, 20.0f)),
+      PointLight(Vector3D(-5.25f, 3.75f, 3.0f), FloatColor(30.0f, 30.0f, 30.0f)),
     )
   )
 
@@ -263,17 +266,31 @@ object Main extends App {
     result
   }
 
+  val rgbBitmap = new RgbBitmap(WIDTH, HEIGHT)
+  rgbBitmap.fill(floatColorToColor(WORLD_COLOR))
+
+  val rgbFloatBitmap = Array.ofDim[FloatColor](WIDTH, HEIGHT)
+  for(x <- 0 until WIDTH; y <- 0 until HEIGHT) yield {
+    rgbFloatBitmap(x)(y) = FloatColor(0,0,0)
+  }
+
   time(0, 1, {
-    generateScreenUVs(WIDTH, HEIGHT, FOV)
+    generateScreenUVs(WIDTH*SUPER_SAMPLING, HEIGHT*SUPER_SAMPLING, FOV)
       .map {
         case (screenCoordinates: (Int, Int), uv: Vector3D) =>
           (screenCoordinates, getPixelColor(scene, uv))
       }
       .foreach {
         case (screenCoordinates: (Int, Int), color: Some[FloatColor]) =>
-          rgbBitmap.update(screenCoordinates._1, screenCoordinates._2, floatColorToColor(color.value))
-        case (_: (Int, Int), None) => ()
+          val x = screenCoordinates._1 / SUPER_SAMPLING
+          val y = screenCoordinates._2 / SUPER_SAMPLING
+          rgbFloatBitmap(x)(y) = rgbFloatBitmap(x)(y) + (color.value * (1.0f/(SUPER_SAMPLING*SUPER_SAMPLING)))
+        case (_: (Int, Int), None) => WORLD_COLOR
       }
+
+    for(x <- 0 until WIDTH; y <- 0 until HEIGHT) yield {
+      rgbBitmap.update(x, y, floatColorToColor(rgbFloatBitmap(x)(y)) )
+    }
   })
 
   val frame = new JFrame
