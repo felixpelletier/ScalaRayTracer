@@ -1,0 +1,24 @@
+language: scala
+
+jdk: openjdk12
+
+scala:
+  - 2.13.1
+
+addons:
+  apt:
+    update: true
+    packages:
+      - python3
+      - python3-pip
+      - python3-setuptools
+
+install:
+  - python3 -m pip install cloudinary
+
+script:
+  - sbt ++$TRAVIS_SCALA_VERSION assembly
+
+after_script:
+  - java -jar target/scala-2.13/ScalaRayTracer-assembly-0.1.jar --export output.jpg
+  - python3 upload_to_cloudinary.py output
