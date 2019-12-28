@@ -1,10 +1,13 @@
-import java.awt.{Color, FlowLayout, Image}
+package felixpelletier.scalaraytracer
 
-import Utils.clamp
+import java.awt.image.RenderedImage
+import java.awt.{Color, FlowLayout, Image}
+import java.io.{File, IOException}
+
+import javax.imageio.ImageIO
 import javax.swing.{ImageIcon, JFrame, JLabel, WindowConstants}
 
-import scala.collection.parallel._
-import scala.language.reflectiveCalls
+import scala.collection.parallel.CollectionsHaveToParArray
 
 object Main extends App {
 
@@ -54,9 +57,9 @@ object Main extends App {
   )
 
   def floatColorToColor(floatColor: FloatColor) = new Color(
-    clamp((floatColor.r * 255).toInt, 0, 255),
-    clamp((floatColor.g * 255).toInt, 0, 255),
-    clamp((floatColor.b * 255).toInt, 0, 255),
+    Utils.clamp((floatColor.r * 255).toInt, 0, 255),
+    Utils.clamp((floatColor.g * 255).toInt, 0, 255),
+    Utils.clamp((floatColor.b * 255).toInt, 0, 255),
   )
 
   def time[R](warmupRuns: Int, runs: Int, block: => R): R = {
@@ -100,15 +103,42 @@ object Main extends App {
     }
   })
 
-  def showImage(image: Image){
-      val frame = new JFrame
-      frame.getContentPane.setLayout(new FlowLayout)
-      frame.getContentPane.add(new JLabel(new ImageIcon(image)))
-      frame.pack()
-      frame.setVisible(true)
-      frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
+  def showImage(image: Image) {
+    val frame = new JFrame
+    frame.getContentPane.setLayout(new FlowLayout)
+    frame.getContentPane.add(new JLabel(new ImageIcon(image)))
+    frame.pack()
+    frame.setVisible(true)
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
   }
 
-  showImage(rgbBitmap.getImage())
+  def saveImage(image: RenderedImage, filename: String): Unit = {
+    try {
+      var actualFilename = filename.trim()
+      if (actualFilename.endsWith(".jpg")){
+        actualFilename = filename.substring(0, filename.lastIndexOf(".jpg"))
+      }
+      actualFilename = actualFilename + ".jpg"
+      val outputFile: File = new File(filename);
+      ImageIO.write(image, "jpg", outputFile);
+    } catch {
+      case _: IOException =>
+        {
+          Console.err.println("Error saving file.")
+        }
+    }
+  }
+
+  if (args.length > 0 && args(0) == "--export") {
+    if (args.length < 2) {
+      Console.err.println("Need to specify a filename when using --export.")
+    }
+    else {
+      saveImage(rgbBitmap.getRenderedImage(), args(1))
+    }
+  }
+  else {
+    showImage(rgbBitmap.getImage())
+  }
 
 }

@@ -1,3 +1,5 @@
+package felixpelletier.scalaraytracer
+
 object Utils {
 
   def clamp[T : Numeric](value: T, min: T, max: T) : T = {
@@ -8,6 +10,5 @@ object Utils {
       else
           value
   }
-
 
 }

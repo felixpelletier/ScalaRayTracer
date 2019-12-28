@@ -1,3 +1,5 @@
+package felixpelletier.scalaraytracer
+
 case class Vector3D(x : Float, y : Float, z : Float) {
 
   def +(otherVector: Vector3D) = Vector3D(x + otherVector.x, y + otherVector.y, z + otherVector.z)

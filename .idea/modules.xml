@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ScalaRayTracer.iml" filepath="$PROJECT_DIR$/ScalaRayTracer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ScalaRayTracer.iml" filepath="$PROJECT_DIR$/.idea/modules/ScalaRayTracer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ScalaRayTracer-build.iml" filepath="$PROJECT_DIR$/.idea/modules/ScalaRayTracer-build.iml" />
     </modules>
   </component>
 </project>

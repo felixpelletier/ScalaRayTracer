@@ -1,3 +1,5 @@
+package felixpelletier.scalaraytracer
+
 case class Material(diffuse: FloatColor, specularIntensity: Float = 20.0f, mirror: Float = 0.25f);
 
 trait SolidObject {

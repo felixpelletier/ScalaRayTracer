@@ -1,3 +1,5 @@
+package felixpelletier.scalaraytracer
+
 case class FloatColor(r : Float, g : Float, b : Float) {
   def +(otherColor: FloatColor) = FloatColor(r + otherColor.r, g + otherColor.g, b + otherColor.b)
   def * (multiplier : Any) = multiplier match {

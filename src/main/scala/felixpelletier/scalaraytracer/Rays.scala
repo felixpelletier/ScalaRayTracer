@@ -1,3 +1,4 @@
+package felixpelletier.scalaraytracer
 
 case object Rays {
 
@@ -6,8 +7,7 @@ case object Rays {
 
   def getClosestIntersection(scene: Scene, origin : Vector3D, direction : Vector3D): Option[(SolidObject, Vector3D, Vector3D)] = {
     scene.solids.map{case (obj : SolidObject) => (obj, obj.IntersectRay(origin, direction)) }
-      .filter(_._2.isDefined)
-      .map {
+      .collect {
         case (solid: SolidObject, intersection : Some[(Vector3D, Vector3D)]) => (solid, intersection.get._1, intersection.get._2)
       }
       .minByOption {

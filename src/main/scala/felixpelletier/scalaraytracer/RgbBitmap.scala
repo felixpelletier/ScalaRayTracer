@@ -1,5 +1,7 @@
+package felixpelletier.scalaraytracer
+
+import java.awt.image.{BufferedImage, RenderedImage}
 import java.awt.{Color, Image}
-import java.awt.image.BufferedImage
 
 class RgbBitmap(val dim: (Int, Int)) {
   def width = dim._1
@@ -18,4 +20,6 @@ class RgbBitmap(val dim: (Int, Int)) {
   }
 
   def getImage(): Image = image;
+
+  def getRenderedImage(): RenderedImage = image;
 }

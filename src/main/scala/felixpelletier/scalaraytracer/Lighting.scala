@@ -1,5 +1,7 @@
-import Utils.clamp
-import Rays.{getClosestIntersection, getReflectedRayDirection}
+package felixpelletier.scalaraytracer
+
+import felixpelletier.scalaraytracer.Rays.{getClosestIntersection, getReflectedRayDirection}
+import felixpelletier.scalaraytracer.Utils.clamp
 
 trait Light {
   def CalculateLighting(scene : Scene, solid: SolidObject, point : Vector3D, normal : Vector3D) : FloatColor
